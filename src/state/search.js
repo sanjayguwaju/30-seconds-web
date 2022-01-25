@@ -1,16 +1,16 @@
 import createStateProvider from './utils';
-import { quickParseTokens as tokenize } from 'utils/search';
 
 const SEARCH_RESULTS_COUNT = 60;
 
 const initialState = {
   searchQuery: '',
   searchIndex: [],
+  tokenizer: () => [],
   searchResults: [],
   searchTimestamp: `${new Date()}`,
 };
 
-const searchByKeyphrase = (keyphrase, searchIndex) => {
+const searchByKeyphrase = (keyphrase, searchIndex, tokenize) => {
   let q = keyphrase.toLowerCase().trim();
   if (q.length <= 1) return [];
   let results = [];
@@ -60,6 +60,7 @@ const filterResultsByType = (type, searchResults) => {
 export const actionTypes = {
   pushNewQuery: 'pushNewQuery',
   initializeIndex: 'initializeIndex',
+  initializeTokenizer: 'initializeTokenizer',
   searchByKeyphrase: 'searchByKeyphrase',
   filterResultsByType: 'filterResultsByType',
 };
@@ -77,10 +78,16 @@ const reducer = (state, action) => {
         ...state,
         searchIndex: action.index,
       };
+    case actionTypes.initializeTokenizer:
+      return {
+        ...state,
+        tokenizer: action.tokenizer,
+      };
     case actionTypes.searchByKeyphrase: {
       const searchResults = searchByKeyphrase(
         action.keyphrase,
-        state.searchIndex
+        state.searchIndex,
+        state.tokenizer
       );
       const availableFilters = {
         All: true,

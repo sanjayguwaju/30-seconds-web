@@ -106,7 +106,12 @@ const Search = ({ isMainSearch = false }) => {
         type='search'
         placeholder={literals.searchPlaceholder}
         aria-label={literals.searchSnippets}
-        onFocus={() => {
+        onFocus={async () => {
+          const tokenizer = (await import('utils/search')).quickParseTokens;
+          dispatch({
+            type: 'initializeTokenizer',
+            tokenizer,
+          });
           if (!isMainSearch && !searchIndexInitialized) {
             fetch('/search-data.json')
               .then(data => data.json())
